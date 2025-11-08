@@ -40,8 +40,8 @@ The tool uses **AST (Abstract Syntax Tree)** parsing for accurate code manipulat
 
 ```bash
 # If using git
-git clone <repository-url>
-cd regEx/verilog_test
+git clone https://github.com/Shubham07022003/Verilog-Testbench-Cleaner.git
+
 
 # Or download and extract the files
 ```
