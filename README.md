@@ -2,22 +2,8 @@
 
 A robust Python tool for cleaning Verilog/SystemVerilog testbench files using AST-level manipulation. This tool automatically removes test-specific code, variables, and parameters, leaving a clean template ready for your next test case.
 
-![Python](https://img.shields.io/badge/python-3.6+-blue.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-## 📋 Table of Contents
 
-- [Overview](#overview)
-- [Features](#features)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Usage Guide](#usage-guide)
-- [Examples](#examples)
-- [API Reference](#api-reference)
-- [How It Works](#how-it-works)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## 🎯 Overview
 
@@ -61,7 +47,7 @@ The tool uses **AST (Abstract Syntax Tree)** parsing for accurate code manipulat
 
 ```bash
 # If using git
-git clone <repository-url>
+git clone https://github.com/Shubham07022003/Verilog-Testbench-Cleaner.git
 cd regEx/verilog_test
 
 # Or download and extract the files
@@ -429,28 +415,7 @@ If you encounter issues:
 3. Check file syntax: Ensure your Verilog file is valid
 4. Review error messages: The tool provides informative error messages
 
-## 🤝 Contributing
 
-Contributions are welcome! Here's how you can help:
-
-### Reporting Issues
-
-If you find a bug or have a feature request:
-
-1. Check existing issues to avoid duplicates
-2. Create a new issue with:
-   - Description of the problem
-   - Steps to reproduce
-   - Expected vs. actual behavior
-   - Sample Verilog code (if applicable)
-
-### Contributing Code
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request with a clear description
 
 
 ## 📚 Code Explanation
@@ -1129,24 +1094,4 @@ if __name__ == "__main__":
 5. **Regular Expressions**: Pattern matching for text-based cleaning
 6. **File I/O**: Reading and writing Verilog files
 7. **String Manipulation**: Pattern replacement and text processing
-
-## 📄 License
-
-This project is provided as-is for educational and development purposes.
-
-## 🙏 Acknowledgments
-
-- **Pyverilog**: For providing the AST parser
-- **Python Community**: For excellent tools and libraries
-
-## 📞 Support
-
-For questions, issues, or contributions:
-- Open an issue on GitHub
-- Check existing documentation
-- Review example files
-
----
-
-**Made with ❤️ for the Verilog/SystemVerilog community**
 
