@@ -1,11 +1,4 @@
-# Verilog Testbench Cleaner
 
-A robust Python tool for cleaning Verilog/SystemVerilog testbench files using AST-level manipulation. This tool automatically removes test-specific code, variables, and parameters, leaving a clean template ready for your next test case.
-
-
-
-
-## 🎯 Overview
 
 The Verilog Testbench Cleaner is designed to automatically clean testbench files by removing all test-specific code while preserving the essential module structure. This is particularly useful when you need to:
 
@@ -47,7 +40,7 @@ The tool uses **AST (Abstract Syntax Tree)** parsing for accurate code manipulat
 
 ```bash
 # If using git
-git clone https://github.com/Shubham07022003/Verilog-Testbench-Cleaner.git
+git clone <repository-url>
 cd regEx/verilog_test
 
 # Or download and extract the files
@@ -301,6 +294,180 @@ except Exception as e:
 
 Internal class used for AST traversal and cleaning. Not typically used directly, but available for advanced customization.
 
+## 📚 About Pyverilog Library
+
+### What is Pyverilog?
+
+**Pyverilog** is a Python-based toolkit designed for Verilog HDL (Hardware Description Language) analysis and processing. It provides comprehensive parsing capabilities that convert Verilog code into an Abstract Syntax Tree (AST), enabling programmatic manipulation and analysis of hardware designs.
+
+**Official Repository**: [PyHDI/Pyverilog](https://github.com/PyHDI/Pyverilog)
+
+### Key Features of Pyverilog
+
+1. **AST Parsing**: Converts Verilog source code into a structured tree representation
+2. **Code Generation**: Can regenerate Verilog code from modified AST
+3. **Dataflow Analysis**: Analyzes signal dependencies and data flow
+4. **Control Flow Analysis**: Identifies state machines and control structures
+5. **Design Hierarchy**: Extracts module definitions and instantiations
+
+### Why Use Pyverilog in This Project?
+
+#### 1. **Accurate Parsing**
+- **Problem with Regex**: Regular expressions can't understand Verilog syntax structure. They match patterns but don't understand context.
+- **Solution with AST**: Pyverilog understands the actual structure of Verilog code, making transformations accurate and reliable.
+
+**Example:**
+```verilog
+// Regex might incorrectly match this:
+assign y = (a & b);  // This is NOT an instance, but regex might think it is
+
+// But AST knows this is an assignment, not an instance
+```
+
+#### 2. **Handles Complex Structures**
+- **Nested Blocks**: Correctly handles nested `begin...end` blocks
+- **Multi-line Constructs**: Properly parses declarations and instantiations spanning multiple lines
+- **Context Awareness**: Understands the difference between module instances, function calls, and assignments
+
+#### 3. **Robust Code Transformation**
+- **Preserves Structure**: Maintains proper code formatting and structure
+- **Safe Modifications**: AST manipulation ensures syntactically correct output
+- **No False Matches**: Unlike regex, won't accidentally modify unrelated code
+
+### How Pyverilog Works in This Project
+
+#### Step 1: Parsing
+```python
+from pyverilog.vparser.parser import parse
+
+# Parse Verilog file into AST
+ast, directives = parse([filename])
+```
+- Reads the Verilog file
+- Converts it into an Abstract Syntax Tree
+- Each code element becomes a node in the tree
+
+#### Step 2: AST Structure
+The AST represents code hierarchically:
+```
+Description (root)
+  └── ModuleDef (module and_gate_tb)
+       ├── Reg (reg a, b)
+       ├── Wire (wire y)
+       ├── InstanceList (and_gate uut)
+       │    └── Instance (with port connections)
+       └── Initial (test stimulus block)
+            └── Statements...
+```
+
+#### Step 3: Visitor Pattern
+```python
+class ASTCleaner:
+    def visit(self, node):
+        # Dynamically calls visit_Initial, visit_Reg, etc.
+        method_name = f'visit_{node.__class__.__name__}'
+        return getattr(self, method_name)(node)
+    
+    def visit_Initial(self, node):
+        return None  # Remove initial blocks
+    
+    def visit_Reg(self, node):
+        return None  # Remove variable declarations
+```
+
+**How it works:**
+- Traverses the AST tree
+- For each node type, calls the corresponding handler method
+- Handlers can modify or remove nodes
+- Returns modified AST
+
+#### Step 4: Code Generation
+```python
+from pyverilog.ast_code_generator.codegen import ASTCodeGenerator
+
+codegen = ASTCodeGenerator()
+cleaned_code = codegen.visit(cleaned_ast)
+```
+- Converts the cleaned AST back to Verilog code
+- Maintains proper syntax and formatting
+- Generates valid Verilog output
+
+### Benefits in Our Use Case
+
+#### 1. **Precise Node Removal**
+```python
+def visit_Initial(self, node):
+    return None  # Removes entire initial block, including nested structures
+```
+- Removes complete blocks, not just lines
+- Handles nested structures correctly
+- No partial removals or broken syntax
+
+#### 2. **Port Connection Clearing**
+```python
+def visit_Instance(self, node):
+    node.portlist = None  # Clear ports while keeping instance
+    return node
+```
+- Modifies instance nodes directly
+- Preserves module and instance names
+- Clears ports cleanly
+
+#### 3. **Type-Safe Operations**
+- Each node type has specific attributes
+- Can check node properties before modification
+- Prevents errors from incorrect assumptions
+
+### Comparison: AST vs Regex Approach
+
+| Aspect | AST (Pyverilog) | Regex (Fallback) |
+|--------|-----------------|------------------|
+| **Accuracy** | ✅ Understands syntax | ⚠️ Pattern matching only |
+| **Complex Structures** | ✅ Handles nested blocks | ⚠️ Requires manual tracking |
+| **False Matches** | ✅ None | ⚠️ Possible |
+| **Maintainability** | ✅ Easy to extend | ⚠️ Complex patterns |
+| **Dependencies** | ⚠️ Requires pyverilog | ✅ No dependencies |
+| **Performance** | ⚠️ Slower for simple cases | ✅ Faster for simple cases |
+
+### When AST Parsing is Used
+
+The tool attempts AST parsing first when:
+1. ✅ Pyverilog is installed
+2. ✅ File can be parsed successfully
+3. ✅ No critical parsing errors occur
+
+### When Regex Fallback is Used
+
+The tool falls back to regex when:
+1. ⚠️ Pyverilog is not installed
+2. ⚠️ AST parsing fails (file format issues)
+3. ⚠️ Parsing errors occur
+
+### Installation
+
+```bash
+pip install pyverilog
+```
+
+**Note**: Pyverilog may generate parser warnings (shift/reduce conflicts) during import. These are normal and are automatically suppressed in our implementation.
+
+### Limitations
+
+1. **SystemVerilog Support**: Pyverilog primarily supports Verilog-2001. Some SystemVerilog features may not be fully supported.
+2. **Parser Warnings**: May show shift/reduce conflicts (automatically suppressed in our code)
+3. **File Path Requirements**: Needs absolute paths for proper include resolution
+
+### Why We Have Both Methods
+
+**Dual Approach Strategy:**
+- **Primary (AST)**: Most accurate, used when available
+- **Fallback (Regex)**: Ensures tool always works, even without dependencies
+
+This provides:
+- ✅ Best accuracy when pyverilog is available
+- ✅ Universal compatibility (works without dependencies)
+- ✅ Graceful degradation on errors
+
 ##  How It Works
 
 ### Architecture
@@ -405,16 +572,6 @@ FileNotFoundError: [Errno 2] No such file or directory
 - **Large files**: The regex fallback may be faster for very large files (>10,000 lines)
 - **Multiple files**: Use the Python API in a loop for batch processing
 - **Memory**: AST parsing uses more memory; use regex fallback for memory-constrained environments
-
-### Getting Help
-
-If you encounter issues:
-
-1. Check that Python 3.6+ is installed: `python --version`
-2. Verify dependencies: `pip list | grep pyverilog`
-3. Check file syntax: Ensure your Verilog file is valid
-4. Review error messages: The tool provides informative error messages
-
 
 
 
